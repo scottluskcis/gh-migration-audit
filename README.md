@@ -155,6 +155,62 @@ gh migration-audit audit-repos \
 
 The tool will audit all of the repos, and then write a CSV file to the `--output-path` with the results.
 
+### Authentication Types
+
+This tool supports three types of authentication: token, app, and installation. You can specify the authentication type using the `--auth-type` option. The default is token authentication if no `--auth-type` is specified.
+
+#### Token Authentication
+
+```bash
+gh migration-audit audit-repo \
+    # Specify the authentication type as token
+    --auth-type token \
+    # A GitHub access token with the permissions described above. This can also be configured using the `GITHUB_TOKEN` environment variable.
+    --access-token GITHUB_TOKEN \
+    # The login of the user or organization that owns the repository
+    --owner monalisa \
+    # The name of the repository
+    --repo octocat
+```
+
+#### App Authentication
+
+```bash
+gh migration-audit audit-repo \
+    # Specify the authentication type as app
+    --auth-type app \
+    # The GitHub app ID
+    --app-id GITHUB_APP_ID \
+    # The GitHub app private key
+    --private-key GITHUB_APP_PRIVATE_KEY \
+    # The GitHub client ID
+    --client-id GITHUB_CLIENT_ID \
+    # The GitHub client secret
+    --client-secret GITHUB_CLIENT_SECRET \
+    # The login of the user or organization that owns the repository
+    --owner monalisa \
+    # The name of the repository
+    --repo octocat
+```
+
+#### Installation Authentication
+
+```bash
+gh migration-audit audit-repo \
+    # Specify the authentication type as installation
+    --auth-type installation \
+    # The GitHub app ID
+    --app-id GITHUB_APP_ID \
+    # The GitHub app private key
+    --private-key GITHUB_APP_PRIVATE_KEY \
+    # The GitHub app installation ID
+    --app-installation-id GITHUB_APP_INSTALLATION_ID \
+    # The login of the user or organization that owns the repository
+    --owner monalisa \
+    # The name of the repository
+    --repo octocat
+```
+
 ## GitHub Enterprise Server (GHES) support
 
 This tool works with GitHub Enterprise Server, and __supports all [GitHub Enterprise Server versions](https://docs.github.com/en/enterprise-server/admin/all-releases) currently supported by GitHub__. GitHub Enterprise Server versions are supported for approximately a year from release.
