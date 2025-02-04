@@ -21,6 +21,7 @@ import {
   isSupportedGitHubEnterpriseServerVersion,
 } from '../github-products';
 import { POSTHOG_API_KEY, POSTHOG_HOST } from '../posthog';
+import { createAuthConfig } from '../auth';
 
 const command = new commander.Command();
 const { Option } = commander;
@@ -36,6 +37,13 @@ interface Arguments {
   skipArchived: boolean;
   skipUpdateCheck: boolean;
   verbose: boolean;
+  authType?: 'installation' | 'app' | 'token' | undefined;
+  appId?: string | undefined;
+  privateKey?: string | undefined;
+  privateKeyFile?: string | undefined;
+  appInstallationId?: string | undefined;
+  clientId?: string | undefined;
+  clientSecret?: string | undefined;
 }
 
 enum OwnerType {
@@ -108,10 +116,16 @@ command
     false,
   )
   .option('--skip-update-check', 'Skip automatic check for updates to this tool', false)
+  .option('--auth-type <auth_type>', 'The type of authentication to use: "installation", "app", or "token".')
+  .option('--app-id <app_id>', 'The GitHub app ID.')
+  .option('--private-key <private_key>', 'The GitHub app private key.')
+  .option('--private-key-file <private_key_file>', 'The file containing the GitHub app private key.')
+  .option('--app-installation-id <app_installation_id>', 'The GitHub app installation ID.')
+  .option('--client-id <client_id>', 'The GitHub client ID.')
+  .option('--client-secret <client_secret>', 'The GitHub client secret.')
   .action(
     actionRunner(async (opts: Arguments) => {
       const {
-        accessToken: accessTokenFromArguments,
         baseUrl,
         disableTelemetry,
         owner,
@@ -126,13 +140,7 @@ command
 
       if (!skipUpdateCheck) checkForUpdates(proxyUrl, logger);
 
-      const accessToken = accessTokenFromArguments || process.env.GITHUB_TOKEN;
-
-      if (!accessToken) {
-        throw new Error(
-          'You must specify a GitHub access token using the --access-token argument or GITHUB_TOKEN environment variable.',
-        );
-      }
+      const authConfig = createAuthConfig({ ...opts, logger: logger });
 
       const outputPath = opts.outputPath || `${owner}_${Date.now()}.csv`;
 
@@ -142,7 +150,7 @@ command
         );
       }
 
-      const octokit = createOctokit(accessToken, baseUrl, proxyUrl, logger);
+      const octokit = createOctokit(authConfig, baseUrl, proxyUrl, logger);
 
       const shouldCheckRateLimitAgain = await logRateLimitInformation(logger, octokit);
 
