@@ -235,4 +235,65 @@ describe('createAuthConfig', () => {
             });
         }).toThrow('You must specify a GitHub app private key using the --private-key argument or GITHUB_APP_PRIVATE_KEY environment variable.');
     });
+
+    it('should return token auth config when authType is token and accessToken is provided via environment variable', () => {
+        process.env.GITHUB_TOKEN = 'env-token';
+        const config = createAuthConfig({
+            authType: 'token',
+            logger: mockLogger,
+        });
+
+        expect(config).toEqual({
+            authStrategy: undefined,
+            auth: 'env-token',
+        });
+        delete process.env.GITHUB_TOKEN;
+    });
+
+    it('should return installation auth config when authType is installation and required parameters are provided via environment variables', () => {
+        process.env.GITHUB_APP_ID = '12345';
+        process.env.GITHUB_APP_PRIVATE_KEY = 'env-private-key';
+        process.env.GITHUB_APP_INSTALLATION_ID = '67890';
+        const config = createAuthConfig({
+            authType: 'installation',
+            logger: mockLogger,
+        });
+
+        expect(config).toEqual({
+            authStrategy: expect.any(Function),
+            auth: {
+                appId: 12345,
+                privateKey: 'env-private-key',
+                installationId: 67890,
+            },
+        });
+        delete process.env.GITHUB_APP_ID;
+        delete process.env.GITHUB_APP_PRIVATE_KEY;
+        delete process.env.GITHUB_APP_INSTALLATION_ID;
+    });
+
+    it('should return app auth config when authType is app and required parameters are provided via environment variables', () => {
+        process.env.GITHUB_APP_ID = '12345';
+        process.env.GITHUB_APP_PRIVATE_KEY = 'env-private-key';
+        process.env.GITHUB_CLIENT_ID = 'env-client-id';
+        process.env.GITHUB_CLIENT_SECRET = 'env-client-secret';
+        const config = createAuthConfig({
+            authType: 'app',
+            logger: mockLogger,
+        });
+
+        expect(config).toEqual({
+            authStrategy: expect.any(Function),
+            auth: {
+                appId: 12345,
+                privateKey: 'env-private-key',
+                clientId: 'env-client-id',
+                clientSecret: 'env-client-secret',
+            },
+        });
+        delete process.env.GITHUB_APP_ID;
+        delete process.env.GITHUB_APP_PRIVATE_KEY;
+        delete process.env.GITHUB_CLIENT_ID;
+        delete process.env.GITHUB_CLIENT_SECRET;
+    });
 });
