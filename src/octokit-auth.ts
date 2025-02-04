@@ -12,7 +12,7 @@ export interface AuthConfig {
     | undefined;
 }
 
-const getEnvVar = (name: string): string => process.env[name] || '';
+const getEnvVar = (name: string): string | undefined => process.env[name];
 
 const getAuthAppId = (appId?: string): number => {
   const authAppId = appId || getEnvVar('GITHUB_APP_ID');
@@ -29,7 +29,7 @@ const getAuthPrivateKey = (privateKey?: string, privateKeyFile?: string): string
   if (!authPrivateKey && privateKeyFile) {
     authPrivateKey = readFileSync(privateKeyFile, 'utf-8');
   }
-  if (!authPrivateKey || authPrivateKey.length === 0) {
+  if (!authPrivateKey) {
     throw new Error(
       'You must specify a GitHub app private key using the --private-key argument or GITHUB_APP_PRIVATE_KEY environment variable.',
     );
@@ -45,6 +45,26 @@ const getAuthInstallationId = (appInstallationId?: string): number => {
     );
   }
   return parseInt(authInstallationId);
+};
+
+const getClientId = (clientId?: string): string => {
+  const authClientId = clientId || getEnvVar('GITHUB_CLIENT_ID');
+  if (!authClientId) {
+    throw new Error(
+      'You must specify a GitHub client ID using the --client-id argument or GITHUB_CLIENT_ID environment variable.',
+    );
+  }
+  return authClientId;
+};
+
+const getClientSecret = (clientSecret?: string): string => {
+  const authClientSecret = clientSecret || getEnvVar('GITHUB_CLIENT_SECRET');
+  if (!authClientSecret) {
+    throw new Error(
+      'You must specify a GitHub client secret using the --client-secret argument or GITHUB_CLIENT_SECRET environment variable.',
+    );
+  }
+  return authClientSecret;
 };
 
 export const createAuthConfig = ({
@@ -121,8 +141,8 @@ const getAppAuthConfig = (
   const auth = {
     appId: getAuthAppId(appId),
     privateKey: getAuthPrivateKey(privateKey, privateKeyFile),
-    clientId: clientId || getEnvVar('GITHUB_CLIENT_ID'),
-    clientSecret: clientSecret || getEnvVar('GITHUB_CLIENT_SECRET'),
+    clientId: getClientId(clientId),
+    clientSecret: getClientSecret(clientSecret),
   };
   return { authStrategy: createAppAuth, auth };
 };
