@@ -39,7 +39,7 @@ describe('createAuthConfig', () => {
 
     it('should return installation auth config when required parameters are provided', () => {
         const appId = '12345';
-        const privateKey = 'private-key';
+        const privateKey = '-----BEGIN RSA PRIVATE KEY-----\nprivate-key\n-----END RSA PRIVATE KEY-----';
         const appInstallationId = '67890';
         const config = createAuthConfig({
             appId,
@@ -81,7 +81,7 @@ describe('createAuthConfig', () => {
                 appInstallationId,
                 logger: mockLogger,
             });
-        }).toThrow('You must specify a GitHub app private key using the --private-key argument or GITHUB_APP_PRIVATE_KEY environment variable. Alternatively, you can also specify a file containing the private key using the --private-key-file argument or GITHUB_APP_PRIVATE_KEY_FILE environment variable.');
+        }).toThrow('You must specify a GitHub app private key using the --private-key argument or GITHUB_APP_PRIVATE_KEY environment variable.');
     });
 
     it('should return token auth config when accessToken is provided via environment variable', () => {
@@ -99,7 +99,7 @@ describe('createAuthConfig', () => {
 
     it('should return installation auth config when required parameters are provided via environment variables', () => {
         process.env.GITHUB_APP_ID = '12345';
-        process.env.GITHUB_APP_PRIVATE_KEY = 'env-private-key';
+        process.env.GITHUB_APP_PRIVATE_KEY = '-----BEGIN RSA PRIVATE KEY-----\nprivate-key\n-----END RSA PRIVATE KEY-----';
         process.env.GITHUB_APP_INSTALLATION_ID = '67890';
         delete process.env.GITHUB_TOKEN; // Ensure no access token is set
         const config = createAuthConfig({
@@ -110,7 +110,7 @@ describe('createAuthConfig', () => {
             authStrategy: expect.any(Function),
             auth: {
                 appId: 12345,
-                privateKey: 'env-private-key',
+                privateKey: '-----BEGIN RSA PRIVATE KEY-----\nprivate-key\n-----END RSA PRIVATE KEY-----',
                 installationId: 67890,
             },
         });
@@ -119,14 +119,15 @@ describe('createAuthConfig', () => {
         delete process.env.GITHUB_APP_INSTALLATION_ID;
     });
 
-    it('should return installation auth config when privateKeyFile is provided via environment variable', () => {
-        process.env.GITHUB_APP_PRIVATE_KEY_FILE = '/path/to/private-key-file';
+    it('should return installation auth config when privateKey is provided as a file path', () => {
         (readFileSync as jest.Mock).mockReturnValue('file-private-key');
 
         const appId = '12345';
+        const privateKey = '/path/to/private-key-file.pem';
         const appInstallationId = '67890';
         const config = createAuthConfig({
             appId,
+            privateKey,
             appInstallationId,
             logger: mockLogger,
         });
@@ -139,7 +140,5 @@ describe('createAuthConfig', () => {
                 installationId: parseInt(appInstallationId),
             },
         });
-
-        delete process.env.GITHUB_APP_PRIVATE_KEY_FILE;
     });
 });

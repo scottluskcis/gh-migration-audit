@@ -38,7 +38,6 @@ interface Arguments {
   verbose: boolean;
   appId?: string | undefined;
   privateKey?: string | undefined;
-  privateKeyFile?: string | undefined;
   appInstallationId?: string | undefined;
 }
 
@@ -116,12 +115,8 @@ command
       .env('GITHUB_APP_ID')
   )
   .addOption(
-    new Option('--private-key <private_key>', 'Content of the *.pem file you downloaded from the about page of the GitHub App. ')
+    new Option('--private-key <private_key>', 'Content of the *.pem file you downloaded from the about page of the GitHub App. This can also be a path to the *.pem file.')
       .env('GITHUB_APP_PRIVATE_KEY')
-  )
-  .addOption(
-    new Option('--private-key-file <private_key_file>', 'A *.pem file you downloaded from the about page of the GitHub App.')
-      .env('GITHUB_APP_PRIVATE_KEY_FILE')
   ) 
   .option(
     '--base-url <base_url>',
