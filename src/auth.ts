@@ -87,10 +87,10 @@ export const createAuthConfig = ({
 }): AuthConfig => {
   try {
     if (appInstallationId || getEnvVar('GITHUB_APP_INSTALLATION_ID')) {
-      logger.info('Validating configuration for installation authentication');
+      logger.info('Validating configuration using GitHub App installation');
       return getInstallationAuthConfig(appId, privateKey, privateKeyFile, appInstallationId);
     } else {
-      logger.info('Validating configuration for token authentication');
+      logger.info('Validating configuration using GitHub access token');
       return getTokenAuthConfig(accessToken);
     }
   } catch (e) {
