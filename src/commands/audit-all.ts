@@ -74,10 +74,26 @@ command
   .description(
     "Audits all of the repositories owned by a specific GitHub organization or user, identifying data that can't be migrated automatically",
   )
-  .option(
-    '--access-token <access_token>',
-    'The access token used to interact with the GitHub API. This can also be set using the GITHUB_TOKEN environment variable.',
+  .addOption(
+    new Option('--access-token <access_token>', 'The access token used to interact with the GitHub API. This can also be set using the GITHUB_TOKEN environment variable.')
+      .env('GITHUB_TOKEN')
   )
+  .addOption(
+    new Option('--app-installation-id <app_installation_id>', 'The installation ID of the GitHub App.')
+      .env('GITHUB_APP_INSTALLATION_ID')
+  )
+  .addOption(
+    new Option('--app-id <app_id>', 'The App ID of the GitHub App')
+      .env('GITHUB_APP_ID')
+  )
+  .addOption(
+    new Option('--private-key <private_key>', 'Content of the *.pem file you downloaded from the about page of the GitHub App. ')
+      .env('GITHUB_APP_PRIVATE_KEY')
+  )
+  .addOption(
+    new Option('--private-key-file <private_key_file>', 'A *.pem file you downloaded from the about page of the GitHub App.')
+      .env('GITHUB_APP_PRIVATE_KEY_FILE')
+  ) 
   .option(
     '--base-url <base_url>',
     "The base URL of the GitHub API, if you're running an audit against a GitHub product other than GitHub.com. For GitHub Enterprise Server, this will be something like `https://github.acme.inc/api/v3`. For GitHub Enterprise Cloud with data residency, this will be `https://api.acme.ghe.com`, replacing `acme` with your own tenant.",
@@ -112,23 +128,7 @@ command
     'Skip archived repositories when auditing all repositories owned by the specified user or organization',
     false,
   )
-  .option('--skip-update-check', 'Skip automatic check for updates to this tool', false)
-  .option(
-    '--app-id <app_id>', 
-    'The App ID of the GitHub App.'
-  )
-  .option(
-    '--private-key <private_key>', 
-    'Content of the *.pem file you downloaded from the about page of the GitHub App. '
-  )
-  .option(
-    '--private-key-file <private_key_file>',
-    'A *.pem file you downloaded from the about page of the GitHub App.',
-  )
-  .option(
-    '--app-installation-id <app_installation_id>',
-    'The installation ID of the GitHub App.',
-  )
+  .option('--skip-update-check', 'Skip automatic check for updates to this tool', false) 
   .action(
     actionRunner(async (opts: Arguments) => {
       const {
