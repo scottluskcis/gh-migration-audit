@@ -35,13 +35,10 @@ interface Arguments {
   proxyUrl: string | undefined;
   skipUpdateCheck: boolean;
   verbose: boolean;
-  authType?: 'installation' | 'app' | 'token' | undefined;
   appId?: string | undefined;
   privateKey?: string | undefined;
   privateKeyFile?: string | undefined;
   appInstallationId?: string | undefined;
-  clientId?: string | undefined;
-  clientSecret?: string | undefined;
 }
 
 const writeWarningsToCsv = async (
@@ -134,13 +131,22 @@ command
     false,
   )
   .option('--skip-update-check', 'Skip automatic check for updates to this tool', false)
-  .option('--auth-type <auth_type>', 'The type of authentication to use: "installation", "app", or "token".')
-  .option('--app-id <app_id>', 'The GitHub app ID.')
-  .option('--private-key <private_key>', 'The GitHub app private key.')
-  .option('--private-key-file <private_key_file>', 'The file containing the GitHub app private key.')
-  .option('--app-installation-id <app_installation_id>', 'The GitHub app installation ID.')
-  .option('--client-id <client_id>', 'The GitHub client ID.')
-  .option('--client-secret <client_secret>', 'The GitHub client secret.')
+  .option(
+    '--app-id <app_id>', 
+    'The App ID of the GitHub App.'
+  )
+  .option(
+    '--private-key <private_key>', 
+    'Content of the *.pem file you downloaded from the about page of the GitHub App. '
+  )
+  .option(
+    '--private-key-file <private_key_file>',
+    'A *.pem file you downloaded from the about page of the GitHub App.',
+  )
+  .option(
+    '--app-installation-id <app_installation_id>',
+    'The installation ID of the GitHub App.',
+  )
   .action(
     actionRunner(async (opts: Arguments) => {
       const {

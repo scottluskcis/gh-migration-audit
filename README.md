@@ -155,16 +155,16 @@ gh migration-audit audit-repos \
 
 The tool will audit all of the repos, and then write a CSV file to the `--output-path` with the results.
 
-### Authentication Types
+### Authentication
 
-This tool supports three types of authentication: token, app, and installation. You can specify the authentication type using the `--auth-type` option. The default is token authentication if no `--auth-type` is specified.
+This tool supports two types of authentication: token and installation. The tool will automatically determine the authentication type based on the provided parameters.
 
 #### Token Authentication
 
+This is the default and expects a value for `--access-token` to be provided.
+
 ```bash
 gh migration-audit audit-repo \
-    # Specify the authentication type as token
-    --auth-type token \
     # A GitHub access token with the permissions described above. This can also be configured using the `GITHUB_TOKEN` environment variable.
     --access-token GITHUB_TOKEN \
     # The login of the user or organization that owns the repository
@@ -173,32 +173,12 @@ gh migration-audit audit-repo \
     --repo octocat
 ```
 
-#### App Authentication
-
-```bash
-gh migration-audit audit-repo \
-    # Specify the authentication type as app
-    --auth-type app \
-    # The GitHub app ID
-    --app-id GITHUB_APP_ID \
-    # The GitHub app private key
-    --private-key GITHUB_APP_PRIVATE_KEY \
-    # The GitHub client ID
-    --client-id GITHUB_CLIENT_ID \
-    # The GitHub client secret
-    --client-secret GITHUB_CLIENT_SECRET \
-    # The login of the user or organization that owns the repository
-    --owner monalisa \
-    # The name of the repository
-    --repo octocat
-```
-
 #### Installation Authentication
 
+This approach is for use with a GitHub App Installation and takes advantage of [auth-app.js](https://github.com/octokit/auth-app.js). Specifically [use with Octokit](https://github.com/octokit/auth-app.js/?tab=readme-ov-file#usage-with-octokit) implementation is used and creates an instance that is authenticated as an installation, with automated installation token refresh.
+
 ```bash
 gh migration-audit audit-repo \
-    # Specify the authentication type as installation
-    --auth-type installation \
     # The GitHub app ID
     --app-id GITHUB_APP_ID \
     # The GitHub app private key

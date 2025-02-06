@@ -8,7 +8,6 @@ export interface AuthConfig {
   auth:
     | string
     | { appId: number; privateKey: string; installationId: number }
-    | { appId: number; privateKey: string; clientId: string; clientSecret: string }
     | undefined;
 }
 
@@ -47,26 +46,6 @@ const getAuthInstallationId = (appInstallationId?: string): number => {
   return parseInt(authInstallationId);
 };
 
-const getClientId = (clientId?: string): string => {
-  const authClientId = clientId || getEnvVar('GITHUB_CLIENT_ID');
-  if (!authClientId) {
-    throw new Error(
-      'You must specify a GitHub client ID using the --client-id argument or GITHUB_CLIENT_ID environment variable.',
-    );
-  }
-  return authClientId;
-};
-
-const getClientSecret = (clientSecret?: string): string => {
-  const authClientSecret = clientSecret || getEnvVar('GITHUB_CLIENT_SECRET');
-  if (!authClientSecret) {
-    throw new Error(
-      'You must specify a GitHub client secret using the --client-secret argument or GITHUB_CLIENT_SECRET environment variable.',
-    );
-  }
-  return authClientSecret;
-};
-
 const getTokenAuthConfig = (accessToken?: string): AuthConfig => {
   const authToken = accessToken || getEnvVar('GITHUB_TOKEN');
   if (!authToken) {
@@ -91,55 +70,28 @@ const getInstallationAuthConfig = (
   return { authStrategy: createAppAuth, auth };
 };
 
-const getAppAuthConfig = (
-  appId?: string,
-  privateKey?: string,
-  privateKeyFile?: string,
-  clientId?: string,
-  clientSecret?: string,
-): AuthConfig => {
-  const auth = {
-    appId: getAuthAppId(appId),
-    privateKey: getAuthPrivateKey(privateKey, privateKeyFile),
-    clientId: getClientId(clientId),
-    clientSecret: getClientSecret(clientSecret),
-  };
-  return { authStrategy: createAppAuth, auth };
-};
-
 export const createAuthConfig = ({
-  authType,
   accessToken,
   appId,
   privateKey,
   privateKeyFile,
   appInstallationId,
-  clientId,
-  clientSecret,
   logger,
 }: {
-  authType?: 'installation' | 'app' | 'token' | undefined;
   accessToken?: string | undefined;
   appId?: string | undefined;
   privateKey?: string | undefined;
   privateKeyFile?: string | undefined;
   appInstallationId?: string | undefined;
-  clientId?: string | undefined;
-  clientSecret?: string | undefined;
   logger: Logger;
 }): AuthConfig => {
   try {
-    switch (authType) {
-      case 'installation':
-        logger.info('Validating configuration for installation authentication');
-        return getInstallationAuthConfig(appId, privateKey, privateKeyFile, appInstallationId);
-      case 'app':
-        logger.info('Validating configuration for app authentication');
-        return getAppAuthConfig(appId, privateKey, privateKeyFile, clientId, clientSecret);
-      case 'token':
-      default:
-        logger.info('Validating configuration for token authentication');
-        return getTokenAuthConfig(accessToken);
+    if (appInstallationId || getEnvVar('GITHUB_APP_INSTALLATION_ID')) {
+      logger.info('Validating configuration for installation authentication');
+      return getInstallationAuthConfig(appId, privateKey, privateKeyFile, appInstallationId);
+    } else {
+      logger.info('Validating configuration for token authentication');
+      return getTokenAuthConfig(accessToken);
     }
   } catch (e) {
     logger.error('Error creating and validating auth config', e);
