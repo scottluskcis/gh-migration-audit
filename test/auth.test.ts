@@ -1,5 +1,8 @@
 import { createAuthConfig } from '../src/auth';
 import { Logger } from '../src/types';
+import { readFileSync } from 'fs';
+
+jest.mock('fs');
 
 describe('createAuthConfig', () => {
     const mockLogger: Logger = {
@@ -8,6 +11,10 @@ describe('createAuthConfig', () => {
         debug: jest.fn(),
         warn: jest.fn()
     };
+
+    afterEach(() => {
+        jest.resetAllMocks();
+    });
 
     it('should return token auth config when accessToken is provided', () => {
         const accessToken = 'token';
@@ -74,7 +81,7 @@ describe('createAuthConfig', () => {
                 appInstallationId,
                 logger: mockLogger,
             });
-        }).toThrow('You must specify a GitHub app private key using the --private-key argument or GITHUB_APP_PRIVATE_KEY environment variable.');
+        }).toThrow('You must specify a GitHub app private key using the --private-key argument or GITHUB_APP_PRIVATE_KEY environment variable. Alternatively, you can also specify a file containing the private key using the --private-key-file argument or GITHUB_APP_PRIVATE_KEY_FILE environment variable.');
     });
 
     it('should return token auth config when accessToken is provided via environment variable', () => {
@@ -110,5 +117,29 @@ describe('createAuthConfig', () => {
         delete process.env.GITHUB_APP_ID;
         delete process.env.GITHUB_APP_PRIVATE_KEY;
         delete process.env.GITHUB_APP_INSTALLATION_ID;
+    });
+
+    it('should return installation auth config when privateKeyFile is provided via environment variable', () => {
+        process.env.GITHUB_APP_PRIVATE_KEY_FILE = '/path/to/private-key-file';
+        (readFileSync as jest.Mock).mockReturnValue('file-private-key');
+
+        const appId = '12345';
+        const appInstallationId = '67890';
+        const config = createAuthConfig({
+            appId,
+            appInstallationId,
+            logger: mockLogger,
+        });
+
+        expect(config).toEqual({
+            authStrategy: expect.any(Function),
+            auth: {
+                appId: parseInt(appId),
+                privateKey: 'file-private-key',
+                installationId: parseInt(appInstallationId),
+            },
+        });
+
+        delete process.env.GITHUB_APP_PRIVATE_KEY_FILE;
     });
 });

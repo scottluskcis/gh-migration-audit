@@ -24,13 +24,14 @@ const getAuthAppId = (appId?: string): number => {
 };
 
 const getAuthPrivateKey = (privateKey?: string, privateKeyFile?: string): string => {
+  const authPrivateKeyFile = privateKeyFile || getEnvVar('GITHUB_APP_PRIVATE_KEY_FILE');
   let authPrivateKey = privateKey || getEnvVar('GITHUB_APP_PRIVATE_KEY');
-  if (!authPrivateKey && privateKeyFile) {
-    authPrivateKey = readFileSync(privateKeyFile, 'utf-8');
+  if (!authPrivateKey && authPrivateKeyFile) {
+    authPrivateKey = readFileSync(authPrivateKeyFile, 'utf-8');
   }
   if (!authPrivateKey) {
     throw new Error(
-      'You must specify a GitHub app private key using the --private-key argument or GITHUB_APP_PRIVATE_KEY environment variable.',
+      'You must specify a GitHub app private key using the --private-key argument or GITHUB_APP_PRIVATE_KEY environment variable. Alternatively, you can also specify a file containing the private key using the --private-key-file argument or GITHUB_APP_PRIVATE_KEY_FILE environment variable.',
     );
   }
   return authPrivateKey;
