@@ -32,8 +32,6 @@ const getAuthPrivateKey = (privateKey?: string): string => {
   }
   if (authPrivateKey.endsWith('.pem')) {
     authPrivateKey = readFileSync(authPrivateKey, 'utf-8');
-  } else if (!authPrivateKey.startsWith('-----BEGIN RSA PRIVATE KEY-----')) {
-    throw new Error('Invalid private key format.');
   }
   return authPrivateKey;
 };
